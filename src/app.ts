@@ -14,27 +14,47 @@ app.get('/', (req, res) => {
 
 const messages = [
     {
-        message: 'Hello, ZheSha', id: '1',
+        message: 'Hello, ZheSha', id: 1,
         user: {id: '11', name: 'Denis'}
     },
     {
-        message: 'Hello, Denis', id: '2',
+        message: 'Hello, Denis', id: 2,
         user: {id: '22', name: 'ZheSha'}
     },
     {
-        message: 'Yo, guys', id: '3',
+        message: 'Yo, guys', id: 3,
         user: {id: '33', name: 'Bender'}
     }
 ]
 
+const usersState = new Map()
+
 socket.on('connection', (socketChannel) => {
+
+    usersState.set(socketChannel, {
+        id: new Date().getTime().toString(),
+        name: 'anonymous'
+    })
+
+    socket.on('disconnect', () => {
+        usersState.delete(socketChannel)
+    });
+
+    socketChannel.on('client-name-sent', (name: string) => {
+        const user = usersState.get(socketChannel)
+        user.name = name
+    })
+
     socketChannel.on('client-message-sent', (message: string) => {
         if (typeof message !== 'string') {
             return
         }
+
+        const user = usersState.get(socketChannel)
+
         let messageItem = {
-            message: message, id: '4',
-            user: {id: '44' + new Date(), name: 'Denis'}
+            message: message, id: new Date().getTime(),
+            user: {id: user.id + new Date(), name: user.name}
         }
         messages.push(messageItem)
 
