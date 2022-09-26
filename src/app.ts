@@ -41,8 +41,15 @@ socket.on('connection', (socketChannel) => {
     });
 
     socketChannel.on('client-name-sent', (name: string) => {
+        if (typeof name !== 'string') {
+            return
+        }
         const user = usersState.get(socketChannel)
         user.name = name
+    })
+
+    socketChannel.on('client-typed', () => {
+        socket.emit('user-typing', usersState.get(socketChannel))
     })
 
     socketChannel.on('client-message-sent', (message: string) => {
