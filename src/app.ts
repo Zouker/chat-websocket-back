@@ -49,11 +49,12 @@ socket.on('connection', (socketChannel) => {
     })
 
     socketChannel.on('client-typed', () => {
-        socket.emit('user-typing', usersState.get(socketChannel))
+        socketChannel.broadcast.emit('user-typing', usersState.get(socketChannel))
     })
 
-    socketChannel.on('client-message-sent', (message: string) => {
-        if (typeof message !== 'string') {
+    socketChannel.on('client-message-sent', (message: string, successFn) => {
+        if (typeof message !== 'string' || message.length > 20) {
+            successFn('Message length should be less than 20 chars')
             return
         }
 
@@ -66,9 +67,13 @@ socket.on('connection', (socketChannel) => {
         messages.push(messageItem)
 
         socket.emit('new-message-sent', messageItem)
+
+        successFn(null);
     });
 
-    socketChannel.emit('init-messages-published', messages)
+    socketChannel.emit('init-messages-published', messages, (data: string) => {
+        console.log('INIT MESSAGES RECEIVED: ' + data)
+    })
 
     console.log('a user connected');
 });
