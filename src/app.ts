@@ -4,12 +4,18 @@ import {Server} from 'socket.io';
 import cors from 'cors'
 
 const app = express();
-app.use(cors())
 const server = http.createServer(app);
-const socket = new Server(server);
+const socket = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['PUT', 'GET', 'HEAD', 'POST', 'DELETE', 'OPTIONS'],
+        credentials: true
+    }
+});
+
+app.use(cors())
 
 app.get('/', (req, res) => {
-    res.set('Access-Control-Allow-Origin', 'https://zouker.github.io/');
     res.send('Hello, it\'s WS server')
 });
 
