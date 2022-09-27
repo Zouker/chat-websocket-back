@@ -9,6 +9,7 @@ const server = http.createServer(app);
 const socket = new Server(server);
 
 app.get('/', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
     res.send('Hello, it\'s WS server')
 });
 
